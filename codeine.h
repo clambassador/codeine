@@ -36,7 +36,7 @@ public:
 		_ls = new ListSelect(_headers);
 
 		_tx = new Text("");
-		_shortcut = new CloseOnKey(_tx, '0', '1');
+		_shortcut = new CloseOnKey(_tx, '0', '1', KEY_BACKSPACE);
 		add_state_widget(new CloseOnKey(_ls));
 		loop_state_widget(_shortcut);
 	}
@@ -57,6 +57,7 @@ protected:
 			if (_entry_to_result.count(_column[_pos])) {
 				_result.push_back(
 				    _entry_to_result[_column[_pos]]);
+				_manual.push_back(false);
 				++_pos;
 			} else {
 				_tx->set_text(_column[_pos]);
@@ -65,6 +66,26 @@ protected:
 		}
 		_table.project(_column_number, _result);
 		_cur_state = -1;
+	}
+
+	virtual void undo() {
+		if (!_manual.size()) {
+			setup_text();
+			return;
+		}
+		while (--_pos < _column.size() && !_manual.back()) {
+			_manual.pop_back();
+			_result.pop_back();
+		}
+		if (_pos >= _column.size()) {
+			assert(0); // base case is first clause
+			_pos = 0;
+		} else {
+			_entry_to_result.erase(_column[_pos]);
+			_manual.pop_back();
+			_result.pop_back();
+		}
+		setup_text();
 	}
 
 	virtual void after_keypress(const Key& key, int state) {}
@@ -76,12 +97,17 @@ protected:
 			setup_text();
 		}
 		if (state == STATE_WORK) {
-			assert(key.key() == '0' || key.key() == '1');
-			_result.push_back(string((char) key.key());
-			_entry_to_result[_column[_pos]] = _result.back();
-
-			++_pos;
-			setup_text();
+			assert(key.key() == '0' || key.key() == '1'
+			       || key.backspace());
+			if (key.backspace()) {
+				undo();
+			} else {
+				_result.push_back(string((char) key.key());
+				_entry_to_result[_column[_pos]] = _result.back();
+				_manual.push_back(true);
+				++_pos;
+				setup_text();
+			}
 		}
 	}
 
@@ -96,6 +122,7 @@ protected:
 	size_t _pos;
 	map<string, string> _entry_to_result;
 	vector<string> _result;
+	vector<bool> _manual;
 
 	enum {
 		STATE_SELECT = 0,

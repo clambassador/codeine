@@ -25,6 +25,10 @@ int main(int argc, char** argv) {
 		return 0;
 	}
         initscr();
+	start_color();
+	keypad(stdscr, true);
+	noecho();
+	cbreak();
 	codeine::CodeineDriver cd;
 	cd.start();
 	cd.wait();
