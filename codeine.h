@@ -102,7 +102,7 @@ protected:
 			if (key.backspace()) {
 				undo();
 			} else {
-				_result.push_back(string((char) key.key());
+				_result.push_back(string(1, (char) key.key()));
 				_entry_to_result[_column[_pos]] = _result.back();
 				_manual.push_back(true);
 				++_pos;
