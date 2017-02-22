@@ -53,9 +53,7 @@ public:
 
 protected:
 	virtual void setup_text() {
-		cout << "setup" << endl;
 		while (_pos < _column.size()) {
-		cout << _pos << endl;
 			if (_entry_to_result.count(_column[_pos])) {
 				_result.push_back(
 				    _entry_to_result[_column[_pos]]);
@@ -79,7 +77,7 @@ protected:
 		}
 		if (state == STATE_WORK) {
 			assert(key.key() == '0' || key.key() == '1');
-			_result.push_back((key.key() == '0' ? "0" : "1"));
+			_result.push_back(string((char) key.key());
 			_entry_to_result[_column[_pos]] = _result.back();
 
 			++_pos;
