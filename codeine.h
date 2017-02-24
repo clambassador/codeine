@@ -11,6 +11,7 @@
 #include "minibus/widgets/close_on_key.h"
 #include "minibus/widgets/list_select.h"
 #include "minibus/widgets/text.h"
+#include "minibus/widgets/text_entry.h"
 
 using namespace ib;
 using namespace minibus;
@@ -34,10 +35,12 @@ public:
 
 	virtual void build() {
 		_ls = new ListSelect(_headers);
+		_name = new TextEntry("Name: ");
 
 		_tx = new Text("");
 		_shortcut = new CloseOnKey(_tx, '0', '1', KEY_BACKSPACE);
 		add_state_widget(new CloseOnKey(_ls));
+		add_state_widget(new CloseOnKey(_name));
 		loop_state_widget(_shortcut);
 	}
 
@@ -64,7 +67,9 @@ protected:
 				return;
 			}
 		}
-		_table.project(_column_number, _result);
+		_table.insert_column(_column_number + 1,
+				     _headers[_column_number] + "_" +
+				     _name->get_result().get(), _result);
 		_cur_state = -1;
 	}
 
@@ -116,6 +121,7 @@ protected:
 
 	vector<string> _column;
 	ListSelect* _ls;
+	TextEntry* _name;
 	Text* _tx;
 	CloseOnKey* _shortcut;
 	size_t _column_number;
@@ -126,6 +132,7 @@ protected:
 
 	enum {
 		STATE_SELECT = 0,
+		STATE_NAME,
 		STATE_WORK
 	};
 };
